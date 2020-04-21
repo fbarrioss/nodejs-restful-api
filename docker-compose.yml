@@ -11,7 +11,7 @@ services:
     - NODE_ENV=production
    volumes:
     - ./:/home/node/app
-   command: "npm start"
+   command: "npm run dev"
    links:
     - "mongo"
     - "mailtrap"
