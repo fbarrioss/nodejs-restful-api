@@ -1,0 +1,68 @@
+***bajar laravel
+docker run --rm -it -v ${pwd}:/app composer composer create-project --prefer-dist laravel/laravel blog
+
+**Dockerfile
+FROM php:latest
+RUN apt-get update && apt-get install -y libmcrypt-dev mariadb-client libmagickwand-dev libzip-dev --no-install-recommends
+RUN pecl install imagick
+RUN docker-php-ext-enable imagick
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install zip
+WORKDIR /app
+
+***crear php con requisitos
+docker build -t 'blog-php' ./
+
+***iniciar php
+docker run --rm -it -p 8000:8000 -v ${pwd}:/app blog-php php artisan serve --host=0.0.0.0
+
+***docker-compose.yml
+version: '3'
+
+services:
+ web:
+   image: 'blog-php'
+   ports:
+    - '8000:8000'
+   volumes:
+    - ./:/app
+   command: php artisan serve --host=0.0.0.0
+   links:
+    - "mysql"
+    - "mailtrap"
+ mysql:
+   image: 'mysql:5.7'
+   ports:
+    - '3306:3306'
+   environment:
+    - MYSQL_ROOT_PASSWORD=toor
+   volumes:
+    - mysql-data:/var/lib/mysql
+ mailtrap:
+   image: 'eaudeweb/mailtrap'
+   ports:
+    - '8081:80'
+volumes:
+ mysql-data:
+	
+**iniciar
+docker-compose up
+
+**ejecutar php artisan en contenedor
+docker-compose exec web bash
+** agregar una key
+docker-compose exec web php artisan key:generate
+docker-compose exec web php artisan migrate:status
+
+***crear modelo 
+docker-compose exec web php artisan make:model Blog -mf
+docker-compose exec web php artisan migrate
+docker-compose exec web php artisan make:seed BlogTableSeeder
+
+docker run --rm -it -v ${pwd}:/app composer composer dump-autoload
+docker-compose exec web php artisan db:seed
+
+docker-compose exec web php artisan route:list
+docker-compose exec web php artisan make:controller BlogController
+docker-compose exec web php artisan make:resource BlogResource
+docker-compose exec web php artisan make:resource BlogResourceCollection --collection
