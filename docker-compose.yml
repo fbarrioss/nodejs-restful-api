@@ -5,8 +5,8 @@ services:
    image: 'node:latest'
    user: 'node'
    working_dir: /home/node/app
-   expose:
-    - "8082"
+   ports:
+    - "3000:3000"
    environment:
     - NODE_ENV=production
    volumes:
@@ -17,13 +17,11 @@ services:
     - "mailtrap"
  mongo:
   image: mongo
-  restart: always
-  environment:
-    MONGO_INITDB_ROOT_USERNAME: root
-    MONGO_INITDB_ROOT_PASSWORD: example
+  ports:
+    - "27017:27017"
  mailtrap:
    image: 'eaudeweb/mailtrap'
    ports:
     - '8081:80'
 volumes:
- mysql-data:
+ mongodb_data_container:
